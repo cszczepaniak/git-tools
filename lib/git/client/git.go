@@ -1,4 +1,4 @@
-package git
+package client
 
 type Client interface {
 	CurrentBranch() (string, error)
