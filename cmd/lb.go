@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/spf13/cobra"
+
 	"github.com/cszczepaniak/git-tools/lib/git"
 	"github.com/cszczepaniak/git-tools/lib/git/client"
-	"github.com/spf13/cobra"
 )
 
 // lbCmd represents the lb command
@@ -19,6 +20,7 @@ var lbCmd = &cobra.Command{
 			cmd.PrintErr(err)
 			os.Exit(1)
 		}
+
 		c := client.NewClient(wd)
 		latest, err := git.LatestBranches(c, 1000)
 		if err != nil {
