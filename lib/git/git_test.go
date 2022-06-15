@@ -32,11 +32,11 @@ func TestLatestBranches(t *testing.T) {
 
 	latest, err := LatestBranches(c, 1000)
 	require.NoError(t, err)
-
-	assert.Equal(t, map[string]string{
-		`branch2`: `2 days ago`,
-		`branch1`: `8 days ago`,
-	}, latest)
+	require.Len(t, latest, 2)
+	assert.Equal(t, `branch2 (2 days ago)`, latest[0].String())
+	assert.Equal(t, `branch2`, latest[0].Name())
+	assert.Equal(t, `branch1 (8 days ago)`, latest[1].String())
+	assert.Equal(t, `branch1`, latest[1].Name())
 
 	c.AssertExpectations(t)
 

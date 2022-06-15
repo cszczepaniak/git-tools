@@ -1,12 +1,26 @@
 package git
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/cszczepaniak/git-tools/lib/git/client"
 )
 
-func LatestBranches(c client.Client, refLogLimit int) (map[string]string, error) {
+type LatestBranch struct {
+	name      string
+	timestamp string
+}
+
+func (b LatestBranch) Name() string {
+	return b.name
+}
+
+func (b LatestBranch) String() string {
+	return fmt.Sprintf(`%s (%s)`, b.name, b.timestamp)
+}
+
+func LatestBranches(c client.Client, refLogLimit int) ([]LatestBranch, error) {
 	const (
 		toDelim         = ` to `
 		refLogPartDelim = ` ~ `
@@ -29,7 +43,8 @@ func LatestBranches(c client.Client, refLogLimit int) (map[string]string, error)
 		return nil, err
 	}
 
-	branchToTime := make(map[string]string)
+	branchSet := make(map[string]struct{})
+	var latest []LatestBranch
 	for _, entry := range refLog {
 		if !strings.HasPrefix(entry, checkoutPrefix) {
 			continue
@@ -52,7 +67,7 @@ func LatestBranches(c client.Client, refLogLimit int) (map[string]string, error)
 			continue
 		}
 
-		if _, ok := branchToTime[branch]; ok {
+		if _, ok := branchSet[branch]; ok {
 			continue
 		}
 
@@ -64,8 +79,12 @@ func LatestBranches(c client.Client, refLogLimit int) (map[string]string, error)
 			continue
 		}
 
-		branchToTime[branch] = timestampStr[leftCurlyIdx+1 : rightCurlyIdx]
+		branchSet[branch] = struct{}{}
+		latest = append(latest, LatestBranch{
+			name:      branch,
+			timestamp: timestampStr[leftCurlyIdx+1 : rightCurlyIdx],
+		})
 	}
 
-	return branchToTime, nil
+	return latest, nil
 }

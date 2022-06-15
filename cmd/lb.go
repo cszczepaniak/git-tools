@@ -1,9 +1,9 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
 
+	"github.com/AlecAivazis/survey/v2"
 	"github.com/spf13/cobra"
 
 	"github.com/cszczepaniak/git-tools/lib/git"
@@ -28,17 +28,29 @@ var lbCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		choices := make([]string, 0, len(latest))
-		for branch, timestamp := range latest {
-			choices = append(choices, fmt.Sprintf(`%s (%s)`, branch, timestamp))
+		displayOpts := make([]string, 0, len(latest))
+		branches := make([]string, 0, len(latest))
+		for _, l := range latest {
+			displayOpts = append(displayOpts, l.String())
+			branches = append(branches, l.Name())
 		}
 
-		ct := *count
-		if len(choices) < ct {
-			ct = len(choices)
+		var selected int
+		err = survey.AskOne(&survey.Select{
+			Message:  `Select a branch to switch to:`,
+			PageSize: *count,
+			Options:  displayOpts,
+		}, &selected)
+		if err != nil {
+			cmd.PrintErr(err)
+			os.Exit(1)
 		}
 
-		fmt.Println(choices[:ct])
+		err = c.Checkout(branches[selected])
+		if err != nil {
+			cmd.PrintErr(err)
+			os.Exit(1)
+		}
 	},
 }
 
