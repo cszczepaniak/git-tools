@@ -75,6 +75,31 @@ func TestRefLog(t *testing.T) {
 	}
 }
 
+func TestCheckout(t *testing.T) {
+	dir := setupIntegrationTest(t)
+
+	runCmd(t, dir, `git`, `checkout`, `-b`, `branch0`)
+	runCmd(t, dir, `git`, `checkout`, `-b`, `branch1`)
+	runCmd(t, dir, `git`, `checkout`, `-b`, `branch2`)
+
+	c := NewClient(dir)
+
+	require.NoError(t, c.Checkout(`branch1`))
+	current, err := c.CurrentBranch()
+	require.NoError(t, err)
+	assert.Equal(t, `branch1`, current)
+
+	require.NoError(t, c.Checkout(`branch0`))
+	current, err = c.CurrentBranch()
+	require.NoError(t, err)
+	assert.Equal(t, `branch0`, current)
+
+	require.Error(t, c.Checkout(`dne`))
+	current, err = c.CurrentBranch()
+	require.NoError(t, err)
+	assert.Equal(t, `branch0`, current)
+}
+
 func runCmd(t *testing.T, dir, name string, args ...string) string {
 	cmd := exec.Command(name, args...)
 	cmd.Dir = dir

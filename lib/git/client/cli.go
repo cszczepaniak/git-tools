@@ -67,6 +67,13 @@ func (c *cliClient) RefLog(cfg RefLogConfig) ([]string, error) {
 	return res, nil
 }
 
+func (c *cliClient) Checkout(b string) error {
+	return cliError(c.command(`git`, `checkout`, b).CombinedOutput())
+}
+
 func cliError(out []byte, err error) error {
+	if err == nil {
+		return nil
+	}
 	return fmt.Errorf("%w\n%s", err, out)
 }

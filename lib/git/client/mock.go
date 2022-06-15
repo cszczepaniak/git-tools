@@ -17,3 +17,7 @@ func (m *MockClient) RefLog(cfg RefLogConfig) ([]string, error) {
 	args := m.Called(cfg)
 	return args.Get(0).([]string), args.Error(1)
 }
+
+func (m *MockClient) Checkout(b string) error {
+	return m.Called(b).Error(0)
+}
