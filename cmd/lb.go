@@ -22,7 +22,7 @@ var lbCmd = &cobra.Command{
 		}
 
 		c := client.NewClient(wd)
-		latest, err := git.LatestBranches(c, 1000)
+		latest, err := git.LatestBranches(c, *reflogLimit)
 		if err != nil {
 			cmd.PrintErr(err)
 			os.Exit(1)
@@ -54,18 +54,14 @@ var lbCmd = &cobra.Command{
 	},
 }
 
-var count *int
+var (
+	count       *int
+	reflogLimit *int
+)
 
 func init() {
 	rootCmd.AddCommand(lbCmd)
 
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// lbCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
 	count = lbCmd.Flags().IntP(`count`, `n`, 25, `Number of branches displayed per page`)
+	reflogLimit = lbCmd.Flags().IntP(`limit`, `limit`, 1000, `Number of reflog lines to parse`)
 }
