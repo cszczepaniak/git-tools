@@ -63,5 +63,5 @@ func init() {
 	rootCmd.AddCommand(lbCmd)
 
 	count = lbCmd.Flags().IntP(`count`, `n`, 25, `Number of branches displayed per page`)
-	reflogLimit = lbCmd.Flags().IntP(`limit`, `limit`, 1000, `Number of reflog lines to parse`)
+	reflogLimit = lbCmd.Flags().IntP(`limit`, `l`, 1000, `Number of reflog lines to parse`)
 }
