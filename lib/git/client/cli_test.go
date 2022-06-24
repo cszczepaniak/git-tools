@@ -16,6 +16,8 @@ func setupIntegrationTest(t *testing.T) string {
 	require.NoError(t, err)
 
 	runCmd(t, dir, `git`, `init`)
+	runCmd(t, dir, `git`, `config`, `user.email`, `test@test.com`)
+	runCmd(t, dir, `git`, `config`, `user.name`, `Test Test`)
 	runCmd(t, dir, `git`, `commit`, `--allow-empty`, `-m`, `initial commit`)
 
 	t.Cleanup(func() {
@@ -105,7 +107,7 @@ func runCmd(t *testing.T, dir, name string, args ...string) string {
 	cmd.Dir = dir
 
 	out, err := cmd.CombinedOutput()
-	require.NoError(t, err)
+	require.NoError(t, err, string(out))
 
 	return strings.TrimSpace(string(out))
 }
