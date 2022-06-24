@@ -105,7 +105,7 @@ func runCmd(t *testing.T, dir, name string, args ...string) string {
 	cmd.Dir = dir
 
 	out, err := cmd.CombinedOutput()
-	require.NoError(t, err)
+	require.NoError(t, err, string(out))
 
 	return strings.TrimSpace(string(out))
 }
