@@ -16,6 +16,8 @@ func setupIntegrationTest(t *testing.T) string {
 	require.NoError(t, err)
 
 	runCmd(t, dir, `git`, `init`)
+	runCmd(t, dir, `git`, `config`, `user.email`, `test@test.com`)
+	runCmd(t, dir, `git`, `config`, `user.name`, `Test Test`)
 	runCmd(t, dir, `git`, `commit`, `--allow-empty`, `-m`, `initial commit`)
 
 	t.Cleanup(func() {
