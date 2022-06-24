@@ -102,6 +102,46 @@ func TestCheckout(t *testing.T) {
 	assert.Equal(t, `branch0`, current)
 }
 
+func TestListConfigs(t *testing.T) {
+	dir := setupIntegrationTest(t)
+
+	c := NewClient(dir)
+
+	cfgs, err := c.ListConfigs(ConfigConfig{
+		Global: false,
+	})
+	require.NoError(t, err)
+
+	assert.Contains(t, cfgs, `user.name`)
+	assert.Contains(t, cfgs, `user.email`)
+
+	cfgKey := `x.y.z`
+
+	runCmd(t, dir, `git`, `config`, cfgKey, `foo`)
+
+	cfgs, err = c.ListConfigs(ConfigConfig{
+		Global: false,
+	})
+	require.NoError(t, err)
+
+	assert.Contains(t, cfgs, cfgKey)
+	assert.Equal(t, cfgs[cfgKey], `foo`)
+
+	cfgKey = `z.y.x`
+	runCmd(t, dir, `git`, `config`, `--global`, cfgKey, `foo`)
+	t.Cleanup(func() {
+		runCmd(t, dir, `git`, `config`, `--global`, `--unset`, cfgKey)
+	})
+
+	cfgs, err = c.ListConfigs(ConfigConfig{
+		Global: true,
+	})
+	require.NoError(t, err)
+
+	assert.Contains(t, cfgs, cfgKey)
+	assert.Equal(t, cfgs[cfgKey], `foo`)
+}
+
 func runCmd(t *testing.T, dir, name string, args ...string) string {
 	cmd := exec.Command(name, args...)
 	cmd.Dir = dir
