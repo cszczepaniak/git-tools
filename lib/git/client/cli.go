@@ -71,6 +71,34 @@ func (c *cliClient) Checkout(b string) error {
 	return cliError(c.command(`git`, `checkout`, b).CombinedOutput())
 }
 
+func (cfg ConfigConfig) toArgs() []string {
+	var res []string
+	res = append(res, `config`)
+	if cfg.Global {
+		res = append(res, `--global`)
+	}
+	return res
+}
+
+func (c *cliClient) ListConfigs(cfg ConfigConfig) (map[string]string, error) {
+	args := cfg.toArgs()
+	args = append(args, `--list`)
+	out, err := c.command(`git`, args...).CombinedOutput()
+	if err != nil {
+		return nil, cliError(out, err)
+	}
+
+	s := bufio.NewScanner(bytes.NewReader(out))
+	res := make(map[string]string)
+	for s.Scan() {
+		txt := s.Text()
+		parts := strings.SplitN(txt, `=`, 2)
+		res[parts[0]] = parts[1]
+	}
+
+	return res, nil
+}
+
 func cliError(out []byte, err error) error {
 	if err == nil {
 		return nil
